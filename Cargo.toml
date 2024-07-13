@@ -2,6 +2,8 @@
 name = "soplex-rs"
 version = "0.1.0"
 edition = "2021"
+description = "Safe Rust bindings for the SoPlex LP solver"
+license = "Apache-2.0"
 
 [dependencies]
 soplex-sys = "0.1.1"
