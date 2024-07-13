@@ -8,7 +8,7 @@ pub mod ffi {
 }
 
 
-struct SoPlex {
+pub struct SoPlex {
     inner: *mut c_void,
 }
 
