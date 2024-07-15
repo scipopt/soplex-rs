@@ -7,6 +7,9 @@ pub struct Model {
     inner: *mut c_void,
 }
 
+pub struct RowId(usize);
+pub struct ColId(usize);
+
 impl Model {
     /// Creates a new linear programming model.
     pub fn new() -> Self {
@@ -23,7 +26,7 @@ impl Model {
     /// * `objval` - The objective value of the column.
     /// * `lb` - The lower bound of the column.
     /// * `ub` - The upper bound of the column.
-    pub fn add_col<const N: usize>(&mut self, mut colentries: [f64; N], objval: f64, lb: f64, ub: f64) {
+    pub fn add_col<const N: usize>(&mut self, mut colentries: [f64; N], objval: f64, lb: f64, ub: f64) -> ColId {
         let nnonzeros = colentries.iter().filter(|&&x| x != 0.0).count();
         let colsize = colentries.len();
 
@@ -34,6 +37,8 @@ impl Model {
                                    nnonzeros as i32,
                                    objval, lb, ub);
         }
+
+        ColId(self.num_cols() - 1)
     }
 
     /// Adds a row to the model.
@@ -43,7 +48,7 @@ impl Model {
     /// * `rowentries` - An array of f64 representing the row entries.
     /// * `lhs` - The left-hand side of the row.
     /// * `rhs` - The right-hand side of the row.
-    pub fn add_row<const N: usize>(&mut self, mut rowentries: [f64; N], lhs: f64, rhs: f64) {
+    pub fn add_row<const N: usize>(&mut self, mut rowentries: [f64; N], lhs: f64, rhs: f64) -> RowId {
         let nnonzeros = rowentries.iter().filter(|&&x| x != 0.0).count();
         let rowsize = rowentries.len();
 
@@ -54,6 +59,8 @@ impl Model {
                                    nnonzeros as i32,
                                    lhs, rhs);
         }
+
+        RowId(self.num_rows() - 1)
     }
 
     /// Optimizes the model and returns the `Status`.
@@ -69,6 +76,27 @@ impl Model {
     /// Returns the objective value of the model.
     pub fn obj_val(&self) -> f64 {
         unsafe { ffi::SoPlex_objValueReal(self.inner) }
+    }
+
+    /// Returns the number of columns in the model.
+    pub fn num_cols(&self) -> usize {
+        unsafe { ffi::SoPlex_numCols(self.inner) as usize}
+    }
+
+    /// Returns the number of rows in the model.
+    pub fn num_rows(&self) -> usize {
+        unsafe { ffi::SoPlex_numRows(self.inner) as usize }
+    }
+
+    /// Remove a column from the model.
+    pub fn remove_col(&mut self, col_id: ColId) {
+        unsafe { ffi::SoPlex_removeColReal(self.inner, col_id.0 as i32) };
+    }
+
+
+    /// Remove a row from the model.
+    pub fn remove_row(&mut self, row_id: RowId) {
+        unsafe { ffi::SoPlex_removeRowReal(self.inner, row_id.0 as i32) };
     }
 }
 
@@ -88,11 +116,26 @@ mod tests {
     #[test]
     fn simple_problem() {
         let mut lp = Model::new();
-        lp.add_col([], 1.0, 0.0, 5.0);
-        lp.add_col([], 1.0, 0.0, 5.0);
-        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        let col1= lp.add_col([], 1.0, 0.0, 5.0);
+        let col2 = lp.add_col([], 1.0, 0.0, 5.0);
+        let row = lp.add_row([1.0, 1.0], 1.0, 5.0);
+        assert_eq!(lp.num_cols(), 2);
+        assert_eq!(lp.num_rows(), 1);
+
         let result = lp.optimize();
         assert_eq!(result, Status::Optimal);
+        assert!((lp.obj_val() - 5.0).abs() < 1e-6);
+
+        lp.remove_row(row);
+        assert_eq!(lp.num_rows(), 0);
+        let new_result = lp.optimize();
+        assert_eq!(new_result, Status::Optimal);
+        assert!((lp.obj_val() - 10.0).abs() < 1e-6);
+
+        lp.remove_col(col1);
+        assert_eq!(lp.num_cols(), 1);
+        let new_result = lp.optimize();
+        assert_eq!(new_result, Status::Optimal);
         assert!((lp.obj_val() - 5.0).abs() < 1e-6);
     }
 }
