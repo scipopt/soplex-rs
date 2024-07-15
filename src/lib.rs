@@ -40,6 +40,4 @@ pub mod ffi {
 }
 
 mod model;
-mod basis_status;
-
 pub use model::*;
