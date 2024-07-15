@@ -117,7 +117,7 @@ mod tests {
     fn simple_problem() {
         let mut lp = Model::new();
         let col1= lp.add_col([], 1.0, 0.0, 5.0);
-        let col2 = lp.add_col([], 1.0, 0.0, 5.0);
+        let _col2 = lp.add_col([], 1.0, 0.0, 10.0);
         let row = lp.add_row([1.0, 1.0], 1.0, 5.0);
         assert_eq!(lp.num_cols(), 2);
         assert_eq!(lp.num_rows(), 1);
@@ -130,12 +130,12 @@ mod tests {
         assert_eq!(lp.num_rows(), 0);
         let new_result = lp.optimize();
         assert_eq!(new_result, Status::Optimal);
-        assert!((lp.obj_val() - 10.0).abs() < 1e-6);
+        assert!((lp.obj_val() - 15.0).abs() < 1e-6);
 
         lp.remove_col(col1);
         assert_eq!(lp.num_cols(), 1);
         let new_result = lp.optimize();
         assert_eq!(new_result, Status::Optimal);
-        assert!((lp.obj_val() - 5.0).abs() < 1e-6);
+        assert!((lp.obj_val() - 10.0).abs() < 1e-6);
     }
 }
