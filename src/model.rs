@@ -7,7 +7,10 @@ pub struct Model {
     inner: *mut c_void,
 }
 
+/// Id of a row in the model.
 pub struct RowId(usize);
+
+/// Id of a column in the model.
 pub struct ColId(usize);
 
 impl Model {
