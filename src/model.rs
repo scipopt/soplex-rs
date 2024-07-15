@@ -29,6 +29,10 @@ impl Model {
     /// * `objval` - The objective value of the column.
     /// * `lb` - The lower bound of the column.
     /// * `ub` - The upper bound of the column.
+    ///
+    /// # Returns
+    ///
+    /// The `ColId` of the added column.
     pub fn add_col<const N: usize>(&mut self, mut colentries: [f64; N], objval: f64, lb: f64, ub: f64) -> ColId {
         let nnonzeros = colentries.iter().filter(|&&x| x != 0.0).count();
         let colsize = colentries.len();
@@ -51,6 +55,10 @@ impl Model {
     /// * `rowentries` - An array of f64 representing the row entries.
     /// * `lhs` - The left-hand side of the row.
     /// * `rhs` - The right-hand side of the row.
+    ///
+    /// # Returns
+    ///
+    /// The `RowId` of the added row.
     pub fn add_row<const N: usize>(&mut self, mut rowentries: [f64; N], lhs: f64, rhs: f64) -> RowId {
         let nnonzeros = rowentries.iter().filter(|&&x| x != 0.0).count();
         let rowsize = rowentries.len();
