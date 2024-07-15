@@ -11,9 +11,9 @@ Safe rust bindings for the SoPlex linear programming library.
 ## Usage
 
 ```rust
-use soplex_rs::{SoPlex, Status};
+use soplex_rs::{Model, Status};
 
-let mut lp = SoPlex::new();
+let mut lp = Model::new();
 lp.add_col([], 1.0, 0.0, 5.0);
 lp.add_col([], 1.0, 0.0, 5.0);
 lp.add_row([1.0, 1.0], 1.0, 5.0);
