@@ -98,6 +98,30 @@ impl Model {
     pub fn remove_row(&mut self, row_id: RowId) {
         unsafe { ffi::SoPlex_removeRowReal(self.inner, row_id.0 as i32) };
     }
+
+    /// Returns the solving time of the model in seconds.
+    pub fn solving_time(&self) -> f64 {
+        unsafe { ffi::SoPlex_getSolvingTime(self.inner) }
+    }
+
+    /// Returns the primal solution of the model.
+    pub fn primal_solution(&self) -> Vec<f64> {
+        let mut primal = vec![0.0; self.num_cols()];
+        unsafe {
+            ffi::SoPlex_getPrimalReal(self.inner, primal.as_mut_ptr(), self.num_cols() as i32);
+        }
+        primal
+    }
+
+    /// Returns the dual solution of the model.
+    pub fn dual_solution(&self) -> Vec<f64> {
+        let mut dual = vec![0.0; self.num_rows()];
+        unsafe {
+            ffi::SoPlex_getDualReal(self.inner, dual.as_mut_ptr(), self.num_rows() as i32);
+        }
+        dual
+    }
+
 }
 
 impl Drop for Model {
@@ -125,17 +149,26 @@ mod tests {
         let result = lp.optimize();
         assert_eq!(result, Status::Optimal);
         assert!((lp.obj_val() - 5.0).abs() < 1e-6);
+        let dual_sol = lp.dual_solution();
+        assert_eq!(dual_sol.len(), 1);
+        assert!((dual_sol[0] - 1.0).abs() < 1e-6);
 
         lp.remove_row(row);
         assert_eq!(lp.num_rows(), 0);
         let new_result = lp.optimize();
         assert_eq!(new_result, Status::Optimal);
         assert!((lp.obj_val() - 15.0).abs() < 1e-6);
+        let primal_sol = lp.primal_solution();
+        assert_eq!(primal_sol.len(), 2);
+        assert!((primal_sol[0] - 5.0).abs() < 1e-6);
+        assert!((primal_sol[1] - 10.0).abs() < 1e-6);
 
         lp.remove_col(col1);
         assert_eq!(lp.num_cols(), 1);
         let new_result = lp.optimize();
         assert_eq!(new_result, Status::Optimal);
         assert!((lp.obj_val() - 10.0).abs() < 1e-6);
+
+        assert!(lp.solving_time() >= 0.0);
     }
 }
