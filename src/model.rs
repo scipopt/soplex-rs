@@ -171,6 +171,20 @@ impl SolvedModel {
     pub fn solving_time(&self) -> f64 {
         unsafe { ffi::SoPlex_getSolvingTime(*self.inner) }
     }
+
+    /// Returns the reduced costs of the model.
+    pub fn reduced_costs(&self) -> Vec<f64> {
+        let mut redcosts = vec![0.0; self.num_cols()];
+        unsafe {
+            ffi::SoPlex_getRedCostReal(*self.inner, redcosts.as_mut_ptr(), self.num_cols() as i32);
+        }
+        redcosts
+    }
+
+    /// Returns the number of iterations it took to solve the model.
+    pub fn num_iterations(&self) -> i32 {
+        unsafe { ffi::SoPlex_getNumIterations(*self.inner) }
+    }
 }
 
 impl From<SolvedModel> for Model {
@@ -232,5 +246,17 @@ mod tests {
         let result = lp.status();
         assert_eq!(result, Status::Optimal);
         assert!((lp.obj_val() - -27.66666666).abs() < 1e-6);
+    }
+
+
+    #[test]
+    fn num_iterations() {
+        let mut lp = Model::new();
+        lp.add_col([], 1.0, 0.0, 5.0);
+        lp.add_col([], 1.0, 0.0, 10.0);
+        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        let lp = lp.optimize();
+        let num_iterations = lp.num_iterations();
+        assert_eq!(num_iterations, 1);
     }
 }
