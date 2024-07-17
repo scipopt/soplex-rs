@@ -40,4 +40,6 @@ pub mod ffi {
 }
 
 mod model;
+mod soplex_ptr;
+
 pub use model::*;

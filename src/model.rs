@@ -1,10 +1,10 @@
-use std::ffi::c_void;
 use crate::ffi;
+use crate::soplex_ptr::SoplexPtr;
 use crate::status::Status;
 
 /// A linear programming model.
 pub struct Model {
-    inner: *mut c_void,
+    inner: SoplexPtr,
 }
 
 /// Id of a row in the model.
@@ -16,9 +16,7 @@ pub struct ColId(usize);
 impl Model {
     /// Creates a new linear programming model.
     pub fn new() -> Self {
-        let inner = unsafe { ffi::SoPlex_create() };
-        assert!(!inner.is_null());
-        Self { inner }
+        Self { inner: SoplexPtr::new() }
     }
 
     /// Adds a column to the model.
@@ -38,7 +36,7 @@ impl Model {
         let colsize = colentries.len();
 
         unsafe {
-            ffi::SoPlex_addColReal(self.inner,
+            ffi::SoPlex_addColReal(*self.inner,
                                    colentries.as_mut_ptr(),
                                    colsize as i32,
                                    nnonzeros as i32,
@@ -64,7 +62,7 @@ impl Model {
         let rowsize = rowentries.len();
 
         unsafe {
-            ffi::SoPlex_addRowReal(self.inner,
+            ffi::SoPlex_addRowReal(*self.inner,
                                    rowentries.as_mut_ptr(),
                                    rowsize as i32,
                                    nnonzeros as i32,
@@ -74,63 +72,31 @@ impl Model {
         RowId(self.num_rows() - 1)
     }
 
-    /// Optimizes the model and returns the `Status`.
-    pub fn optimize(&mut self) -> Status {
-        unsafe { ffi::SoPlex_optimize(self.inner) }.into()
-    }
-
-    /// Returns the `Status` of the model.
-    pub fn status(&self) -> Status {
-        unsafe { ffi::SoPlex_getStatus(self.inner) }.into()
-    }
-
-    /// Returns the objective value of the model.
-    pub fn obj_val(&self) -> f64 {
-        unsafe { ffi::SoPlex_objValueReal(self.inner) }
+    /// Optimizes the model and returns the solved model.
+    pub fn optimize(self) -> SolvedModel {
+        unsafe { ffi::SoPlex_optimize(*self.inner) };
+        SolvedModel { inner: self.inner }
     }
 
     /// Returns the number of columns in the model.
     pub fn num_cols(&self) -> usize {
-        unsafe { ffi::SoPlex_numCols(self.inner) as usize}
+        unsafe { ffi::SoPlex_numCols(*self.inner) as usize }
     }
 
     /// Returns the number of rows in the model.
     pub fn num_rows(&self) -> usize {
-        unsafe { ffi::SoPlex_numRows(self.inner) as usize }
+        unsafe { ffi::SoPlex_numRows(*self.inner) as usize }
     }
 
     /// Remove a column from the model.
     pub fn remove_col(&mut self, col_id: ColId) {
-        unsafe { ffi::SoPlex_removeColReal(self.inner, col_id.0 as i32) };
+        unsafe { ffi::SoPlex_removeColReal(*self.inner, col_id.0 as i32) };
     }
 
 
     /// Remove a row from the model.
     pub fn remove_row(&mut self, row_id: RowId) {
-        unsafe { ffi::SoPlex_removeRowReal(self.inner, row_id.0 as i32) };
-    }
-
-    /// Returns the solving time of the model in seconds.
-    pub fn solving_time(&self) -> f64 {
-        unsafe { ffi::SoPlex_getSolvingTime(self.inner) }
-    }
-
-    /// Returns the primal solution of the model.
-    pub fn primal_solution(&self) -> Vec<f64> {
-        let mut primal = vec![0.0; self.num_cols()];
-        unsafe {
-            ffi::SoPlex_getPrimalReal(self.inner, primal.as_mut_ptr(), self.num_cols() as i32);
-        }
-        primal
-    }
-
-    /// Returns the dual solution of the model.
-    pub fn dual_solution(&self) -> Vec<f64> {
-        let mut dual = vec![0.0; self.num_rows()];
-        unsafe {
-            ffi::SoPlex_getDualReal(self.inner, dual.as_mut_ptr(), self.num_rows() as i32);
-        }
-        dual
+        unsafe { ffi::SoPlex_removeRowReal(*self.inner, row_id.0 as i32) };
     }
 
     /// Read instance from lp/mps file.
@@ -151,18 +117,67 @@ impl Model {
 
         let c_filename = std::ffi::CString::new(filename).unwrap();
         unsafe {
-            ffi::SoPlex_readInstanceFile(self.inner, c_filename.as_ptr());
+            ffi::SoPlex_readInstanceFile(*self.inner, c_filename.as_ptr());
         }
     }
 }
 
-impl Drop for Model {
-    /// Frees the memory allocated for the model.
-    fn drop(&mut self) {
-        unsafe { ffi::SoPlex_free(self.inner) };
+/// A solved linear programming model.
+pub struct SolvedModel {
+    inner: SoplexPtr,
+}
+
+impl SolvedModel {
+    /// Returns the number of columns in the model.
+    pub fn num_cols(&self) -> usize {
+        unsafe { ffi::SoPlex_numCols(*self.inner) as usize }
+    }
+
+    /// Returns the number of rows in the model.
+    pub fn num_rows(&self) -> usize {
+        unsafe { ffi::SoPlex_numRows(*self.inner) as usize }
+    }
+
+    /// Returns the `Status` of the model.
+    pub fn status(&self) -> Status {
+        unsafe { ffi::SoPlex_getStatus(*self.inner) }.into()
+    }
+
+    /// Returns the objective value of the model.
+    pub fn obj_val(&self) -> f64 {
+        unsafe { ffi::SoPlex_objValueReal(*self.inner) }
+    }
+
+
+    /// Returns the primal solution of the model.
+    pub fn primal_solution(&self) -> Vec<f64> {
+        let mut primal = vec![0.0; self.num_cols()];
+        unsafe {
+            ffi::SoPlex_getPrimalReal(*self.inner, primal.as_mut_ptr(), self.num_cols() as i32);
+        }
+        primal
+    }
+
+    /// Returns the dual solution of the model.
+    pub fn dual_solution(&self) -> Vec<f64> {
+        let mut dual = vec![0.0; self.num_rows()];
+        unsafe {
+            ffi::SoPlex_getDualReal(*self.inner, dual.as_mut_ptr(), self.num_rows() as i32);
+        }
+        dual
+    }
+
+    /// Returns the solving time of the model in seconds.
+    pub fn solving_time(&self) -> f64 {
+        unsafe { ffi::SoPlex_getSolvingTime(*self.inner) }
     }
 }
 
+impl From<SolvedModel> for Model {
+    fn from(solved_model: SolvedModel) -> Self {
+        Self { inner: solved_model.inner }
+    }
+}
 
 
 #[cfg(test)]
@@ -172,22 +187,25 @@ mod tests {
     #[test]
     fn simple_problem() {
         let mut lp = Model::new();
-        let col1= lp.add_col([], 1.0, 0.0, 5.0);
+        let col1 = lp.add_col([], 1.0, 0.0, 5.0);
         let _col2 = lp.add_col([], 1.0, 0.0, 10.0);
         let row = lp.add_row([1.0, 1.0], 1.0, 5.0);
         assert_eq!(lp.num_cols(), 2);
         assert_eq!(lp.num_rows(), 1);
 
-        let result = lp.optimize();
+        let lp = lp.optimize();
+        let result = lp.status();
         assert_eq!(result, Status::Optimal);
         assert!((lp.obj_val() - 5.0).abs() < 1e-6);
         let dual_sol = lp.dual_solution();
         assert_eq!(dual_sol.len(), 1);
         assert!((dual_sol[0] - 1.0).abs() < 1e-6);
 
+        let mut lp = Model::from(lp);
         lp.remove_row(row);
         assert_eq!(lp.num_rows(), 0);
-        let new_result = lp.optimize();
+        let lp = lp.optimize();
+        let new_result = lp.status();
         assert_eq!(new_result, Status::Optimal);
         assert!((lp.obj_val() - 15.0).abs() < 1e-6);
         let primal_sol = lp.primal_solution();
@@ -195,9 +213,11 @@ mod tests {
         assert!((primal_sol[0] - 5.0).abs() < 1e-6);
         assert!((primal_sol[1] - 10.0).abs() < 1e-6);
 
+        let mut lp = Model::from(lp);
         lp.remove_col(col1);
         assert_eq!(lp.num_cols(), 1);
-        let new_result = lp.optimize();
+        let lp = lp.optimize();
+        let new_result = lp.status();
         assert_eq!(new_result, Status::Optimal);
         assert!((lp.obj_val() - 10.0).abs() < 1e-6);
 
@@ -208,7 +228,8 @@ mod tests {
     fn read_file() {
         let mut lp = Model::new();
         lp.read_file("tests/data/simple.mps");
-        let result = lp.optimize();
+        let lp = lp.optimize();
+        let result = lp.status();
         assert_eq!(result, Status::Optimal);
         assert!((lp.obj_val() - -27.66666666).abs() < 1e-6);
     }
