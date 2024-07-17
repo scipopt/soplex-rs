@@ -133,6 +133,27 @@ impl Model {
         dual
     }
 
+    /// Read instance from lp/mps file.
+    ///
+    /// # Arguments
+    /// * `filename` - The name of the lp/mps file to read from.
+    ///
+    /// # Panics
+    /// if the file does not exist or the file is not in the correct format.
+    pub fn read_file(&mut self, filename: &str) {
+        if !std::path::Path::new(filename).exists() {
+            panic!("File does not exist");
+        }
+
+        if !filename.ends_with(".lp") && !filename.ends_with(".mps") {
+            panic!("File is not in the correct format, must be .lp or .mps");
+        }
+
+        let c_filename = std::ffi::CString::new(filename).unwrap();
+        unsafe {
+            ffi::SoPlex_readInstanceFile(self.inner, c_filename.as_ptr());
+        }
+    }
 }
 
 impl Drop for Model {
@@ -181,5 +202,14 @@ mod tests {
         assert!((lp.obj_val() - 10.0).abs() < 1e-6);
 
         assert!(lp.solving_time() >= 0.0);
+    }
+
+    #[test]
+    fn read_file() {
+        let mut lp = Model::new();
+        lp.read_file("tests/data/simple.mps");
+        let result = lp.optimize();
+        assert_eq!(result, Status::Optimal);
+        assert!((lp.obj_val() - -27.66666666).abs() < 1e-6);
     }
 }
