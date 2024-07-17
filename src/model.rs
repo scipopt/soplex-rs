@@ -1,4 +1,4 @@
-use crate::ffi;
+use crate::{BoolParam, ffi, IntParam, RealParam};
 use crate::soplex_ptr::SoplexPtr;
 use crate::status::Status;
 
@@ -118,6 +118,39 @@ impl Model {
         let c_filename = std::ffi::CString::new(filename).unwrap();
         unsafe {
             ffi::SoPlex_readInstanceFile(*self.inner, c_filename.as_ptr());
+        }
+    }
+
+    /// Sets boolean parameter.
+    ///
+    /// # Arguments
+    /// * `param` - which `BoolParam` to set.
+    /// * `value` - The value of the parameter.
+    pub fn set_bool_param(&mut self, param: BoolParam, value: bool) {
+        unsafe {
+            ffi::SoPlex_setBoolParam(*self.inner, param.into(), value as i32);
+        }
+    }
+
+    /// Sets integer parameter.
+    ///
+    /// # Arguments
+    /// * `param` - which `IntParam` to set.
+    /// * `value` - The value of the parameter.
+    pub fn set_int_param(&mut self, param: IntParam, value: i32) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, param.into(), value);
+        }
+    }
+
+    /// Sets real parameter.
+    ///
+    /// # Arguments
+    /// * `param` - which `RealParam` to set.
+    /// * `value` - The value of the parameter.
+    pub fn set_real_param(&mut self, param: RealParam, value: f64) {
+        unsafe {
+            ffi::SoPlex_setRealParam(*self.inner, param.into(), value);
         }
     }
 }
@@ -258,5 +291,44 @@ mod tests {
         let lp = lp.optimize();
         let num_iterations = lp.num_iterations();
         assert_eq!(num_iterations, 1);
+    }
+
+    #[test]
+    fn set_int_param() {
+        let mut lp = Model::new();
+        lp.set_int_param(IntParam::IterLimit, 0);
+        lp.add_col([], 1.0, 0.0, 5.0);
+        lp.add_col([], 1.0, 0.0, 10.0);
+        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        let lp = lp.optimize();
+        let num_iterations = lp.num_iterations();
+        assert_eq!(num_iterations, 0);
+        assert_eq!(lp.status(), Status::AbortIter);
+    }
+
+    #[test]
+    fn set_real_param() {
+        let mut lp = Model::new();
+        lp.set_real_param(RealParam::TimeLimit, 0.0);
+        lp.add_col([], 1.0, 0.0, 5.0);
+        lp.add_col([], 1.0, 0.0, 10.0);
+        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        let lp = lp.optimize();
+        assert_eq!(lp.status(), Status::AbortTime);
+    }
+
+
+    #[test]
+    fn set_bool_param() {
+        // TODO: think of a better test,
+        // this just sets a parameter to true and makes sure that it runs
+        // from the output, it seems that the parameter is being set
+        let mut lp = Model::new();
+        lp.set_bool_param(BoolParam::EqTrans, true);
+        lp.add_col([], 1.0, 0.0, 5.0);
+        lp.add_col([], 1.0, 0.0, 10.0);
+        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        let lp = lp.optimize();
+        assert_eq!(lp.status(), Status::Optimal);
     }
 }
