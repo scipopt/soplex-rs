@@ -11,19 +11,24 @@
 //! assert_eq!(lp.num_cols(), 2);
 //! assert_eq!(lp.num_rows(), 1);
 //!
-//! let result = lp.optimize();
+//! let lp = lp.optimize();
+//! let result = lp.status();
 //! assert_eq!(result, Status::Optimal);
 //! assert!((lp.obj_val() - 5.0).abs() < 1e-6);
 //!
+//! let mut lp = Model::from(lp); // Convert the solved model back to a mutable one
 //! lp.remove_row(row);
 //! assert_eq!(lp.num_rows(), 0);
-//! let new_result = lp.optimize();
+//! let lp = lp.optimize();
+//! let new_result = lp.status();
 //! assert_eq!(new_result, Status::Optimal);
 //! assert!((lp.obj_val() - 10.0).abs() < 1e-6);
 //!
+//! let mut lp = Model::from(lp);
 //! lp.remove_col(col1);
 //! assert_eq!(lp.num_cols(), 1);
-//! let new_result = lp.optimize();
+//! let lp = lp.optimize();
+//! let new_result = lp.status();
 //! assert_eq!(new_result, Status::Optimal);
 //! assert!((lp.obj_val() - 5.0).abs() < 1e-6);
 //! ```
