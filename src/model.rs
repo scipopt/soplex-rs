@@ -1,5 +1,4 @@
-use crate::{BoolParam, ffi, IntParam, ObjSense, RealParam};
-use crate::basis_status::BasisStatus;
+use crate::{BoolParam, ColBasisStatus, ffi, IntParam, ObjSense, RealParam, RowBasisStatus};
 use crate::param::{ALGORITHM_PARAM_ID, OBJSENSE_PARAM_ID, REPR_PARAM_ID};
 use crate::soplex_ptr::SoplexPtr;
 use crate::status::Status;
@@ -445,7 +444,7 @@ impl SolvedModel {
     ///
     /// # Returns
     /// The `BasisStatus` of the column.
-    pub fn col_basis_status(&self, col_id: ColId) -> BasisStatus {
+    pub fn col_basis_status(&self, col_id: ColId) -> ColBasisStatus {
         unsafe { ffi::SoPlex_basisColStatus(*self.inner, col_id.0 as i32) }.into()
     }
 
@@ -456,7 +455,7 @@ impl SolvedModel {
     ///
     /// # Returns
     /// The `BasisStatus` of the row.
-    pub fn row_basis_status(&self, row_id: RowId) -> BasisStatus {
+    pub fn row_basis_status(&self, row_id: RowId) -> RowBasisStatus {
         unsafe { ffi::SoPlex_basisRowStatus(*self.inner, row_id.0 as i32) }.into()
     }
 }
@@ -609,8 +608,8 @@ mod tests {
         let lp = lp.optimize();
         let col_basis_status = lp.col_basis_status(col1);
         let row_basis_status = lp.row_basis_status(row);
-        assert_eq!(col_basis_status, BasisStatus::AtLower);
-        assert_eq!(row_basis_status, BasisStatus::AtUpper);
+        assert_eq!(col_basis_status, ColBasisStatus::AtLower);
+        assert_eq!(row_basis_status, RowBasisStatus::AtUpper);
     }
 
 
