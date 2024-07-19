@@ -43,7 +43,7 @@ pub enum Status {
     /// LP has been proven to be primal infeasible
     Infeasible,
     /// LP is primal infeasible or unbounded
-    InForUnbd,
+    InfOrUnbd,
     /// LP has been solved to optimality but unscaled solution contains violations
     OptimalUnscaledViolations,
 }
@@ -70,7 +70,7 @@ impl From<i32> for Status {
             1 => Status::Optimal,
             2 => Status::Unbounded,
             3 => Status::Infeasible,
-            4 => Status::InForUnbd,
+            4 => Status::InfOrUnbd,
             5 => Status::OptimalUnscaledViolations,
             _ => panic!("Invalid value for Status"),
         }

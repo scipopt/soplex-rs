@@ -153,6 +153,31 @@ impl Model {
             ffi::SoPlex_setRealParam(*self.inner, param.into(), value);
         }
     }
+
+
+    /// Change the bounds of a column.
+    ///
+    /// # Arguments
+    /// * `col_id` - The `ColId` of the column to change.
+    /// * `lb` - The new lower bound of the column.
+    /// * `ub` - The new upper bound of the column.
+    pub fn change_col_bounds(&mut self, col_id: ColId, lb: f64, ub: f64) {
+        unsafe {
+            ffi::SoPlex_changeVarBoundsReal(*self.inner, col_id.0 as i32, lb, ub);
+        }
+    }
+
+    /// Change the range (bounds) of a row.
+    ///
+    /// # Arguments
+    /// * `row_id` - The `RowId` of the row to change.
+    /// * `lhs` - The new left-hand side of the row.
+    /// * `rhs` - The new right-hand side of the row.
+    pub fn change_row_range(&mut self, row_id: RowId, lhs: f64, rhs: f64) {
+        unsafe {
+            ffi::SoPlex_changeRowRangeReal(*self.inner, row_id.0 as i32, lhs, rhs);
+        }
+    }
 }
 
 /// A solved linear programming model.
@@ -330,5 +355,30 @@ mod tests {
         lp.add_row([1.0, 1.0], 1.0, 5.0);
         let lp = lp.optimize();
         assert_eq!(lp.status(), Status::Optimal);
+    }
+
+    #[test]
+    fn change_col_bounds() {
+        let mut lp = Model::new();
+        let col1 = lp.add_col([], 1.0, 0.0, 5.0);
+        lp.change_col_bounds(col1, 0.0, 10.0);
+
+        let lp = lp.optimize();
+        let result = lp.status();
+        assert_eq!(result, Status::Optimal);
+        assert!((lp.obj_val() - 10.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn change_row_range() {
+        let mut lp = Model::new();
+        lp.add_col([], 1.0, 1.0, 5.0);
+        lp.add_col([], 1.0, 1.0, 10.0);
+        let row = lp.add_row([1.0, 1.0], 1.0, 5.0);
+        lp.change_row_range(row, 0.0, 0.0);
+
+        let lp = lp.optimize();
+        let result = lp.status();
+        assert_eq!(result, Status::Infeasible);
     }
 }
