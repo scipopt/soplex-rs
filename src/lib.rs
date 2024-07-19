@@ -48,6 +48,7 @@ mod model;
 mod soplex_ptr;
 mod param;
 mod basis_status;
+pub use basis_status::*;
 
 pub use param::*;
 
