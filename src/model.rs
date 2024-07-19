@@ -1,5 +1,6 @@
-use crate::{BoolParam, ffi, IntParam, RealParam};
+use crate::{BoolParam, ffi, IntParam, ObjSense, RealParam};
 use crate::basis_status::BasisStatus;
+use crate::param::{ALGORITHM_PARAM_ID, OBJSENSE_PARAM_ID, REPR_PARAM_ID};
 use crate::soplex_ptr::SoplexPtr;
 use crate::status::Status;
 
@@ -179,6 +180,198 @@ impl Model {
             ffi::SoPlex_changeRowRangeReal(*self.inner, row_id.0 as i32, lhs, rhs);
         }
     }
+
+    /// Sets the objective sense of the model.
+    ///
+    /// # Arguments
+    /// * `sense` - The objective sense of the model.
+    pub fn set_obj_sense(&mut self, sense: ObjSense) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, OBJSENSE_PARAM_ID, sense.into());
+        }
+    }
+
+    /// Sets the algorithm to use.
+    ///
+    /// # Arguments
+    /// * `algorithm` - The `Algorithm` to use.
+    pub fn set_algorithm(&mut self, algorithm: crate::Algorithm) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, ALGORITHM_PARAM_ID, algorithm.into());
+        }
+    }
+
+    /// Sets the representation of the model.
+    ///
+    /// # Arguments
+    /// * `representation` - The `Representation` of the model.
+    pub fn set_representation(&mut self, representation: crate::Representation) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, REPR_PARAM_ID, representation.into());
+        }
+    }
+
+    /// Sets the verbosity level.
+    ///
+    /// # Arguments
+    /// * `verbosity` - The verbosity level.
+    pub fn set_verbosity(&mut self, verbosity: i32) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::VERBOSITY_PARAM_ID, verbosity);
+        }
+    }
+
+
+    /// Sets the factor update type.
+    ///
+    /// # Arguments
+    /// * `factor_update_type` - The factor update type.
+    pub fn set_factor_update_type(&mut self, factor_update_type: crate::FactorUpdateType) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::FACTOR_UPDATE_TYPE_PARAM_ID, factor_update_type.into());
+        }
+    }
+
+    /// Sets the simplifier type.
+    ///
+    /// # Arguments
+    /// * `simplifier_type` - The simplifier type.
+    pub fn set_simplifier_type(&mut self, simplifier_type: crate::Simplifier) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::SIMPLIFIER_PARAM_ID, simplifier_type.into());
+        }
+    }
+
+    /// Sets the starter type.
+    ///
+    /// # Arguments
+    /// * `starter_type` - The starter type.
+    pub fn set_starter_type(&mut self, starter_type: crate::Starter) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::STARTER_PARAM_ID, starter_type.into());
+        }
+    }
+
+    /// Sets the pricer type.
+    ///
+    /// # Arguments
+    /// * `pricer_type` - The pricer type.
+    pub fn set_pricer_type(&mut self, pricer_type: crate::Pricer) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::PRICER_PARAM_ID, pricer_type.into());
+        }
+    }
+
+    /// Sets the ratio tester type.
+    ///
+    /// # Arguments
+    /// * `ratio_tester_type` - The ratio tester type.
+    pub fn set_ratio_tester_type(&mut self, ratio_tester_type: crate::RatioTester) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::RATIO_TESTER_PARAM_ID, ratio_tester_type.into());
+        }
+    }
+
+    /// Sets the sync mode.
+    ///
+    /// # Arguments
+    /// * `sync_mode` - The sync mode.
+    pub fn set_sync_mode(&mut self, sync_mode: crate::SyncMode) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::SYNC_MODE_PARAM_ID, sync_mode.into());
+        }
+    }
+
+
+    /// Sets the read mode.
+    ///
+    /// # Arguments
+    /// * `read_mode` - The read mode.
+    pub fn set_read_mode(&mut self, read_mode: crate::ReadMode) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::READ_MODE_PARAM_ID, read_mode.into());
+        }
+    }
+
+    /// Sets the solve mode.
+    ///
+    /// # Arguments
+    /// * `solve_mode` - The solve mode.
+    pub fn set_solve_mode(&mut self, solve_mode: crate::SolveMode) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::SOLVE_MODE_PARAM_ID, solve_mode.into());
+        }
+    }
+
+    /// Sets the check mode.
+    ///
+    /// # Arguments
+    /// * `check_mode` - The check mode.
+    pub fn set_check_mode(&mut self, check_mode: crate::CheckMode) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::CHECK_MODE_PARAM_ID, check_mode.into());
+        }
+    }
+
+    /// Sets the timer mode.
+    ///
+    /// # Arguments
+    /// * `timer_mode` - The timer mode.
+    pub fn set_timer_mode(&mut self, timer_mode: crate::Timer) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::TIMER_PARAM_ID, timer_mode.into());
+        }
+    }
+
+    /// Sets the hyper pricing parameter.
+    ///
+    /// # Arguments
+    /// * `hyper_pricing` - The hyper pricing parameter.
+    pub fn set_hyper_pricing(&mut self, hyper_pricing: crate::HyperPricing) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::HYPER_PRICING_PARAM_ID, hyper_pricing.into());
+        }
+    }
+
+    /// Sets the solution polishing type.
+    ///
+    /// # Arguments
+    /// * `solution_polishing` - The solution polishing type.
+    pub fn set_solution_polishing(&mut self, solution_polishing: crate::SolutionPolishing) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::SOLUTION_POLISHING_PARAM_ID, solution_polishing.into());
+        }
+    }
+
+    /// Sets the decomposition verbosity.
+    ///
+    /// # Arguments
+    /// * `decomp_verbosity` - The decomposition verbosity.
+    pub fn set_decomp_verbosity(&mut self, decomp_verbosity: crate::Verbosity) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::DECOMP_VERBOSITY_PARAM_ID, decomp_verbosity.into());
+        }
+    }
+
+    /// Sets the statistics timer parameter.
+    ///
+    /// # Arguments
+    /// * `stat_timer` - The statistics timer parameter.
+    pub fn set_stat_timer(&mut self, stat_timer: crate::Timer) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::STAT_TIMER_PARAM_ID, stat_timer.into());
+        }
+    }
+
+    /// Sets the scalar type.
+    ///
+    /// # Arguments
+    /// * `scalar_type` - The scalar type.
+    pub fn set_scalar_type(&mut self, scalar_type: crate::Scalar) {
+        unsafe {
+            ffi::SoPlex_setIntParam(*self.inner, crate::SCALAR_PARAM_ID, scalar_type.into());
+        }
+    }
 }
 
 /// A solved linear programming model.
@@ -277,6 +470,7 @@ impl From<SolvedModel> for Model {
 
 #[cfg(test)]
 mod tests {
+    use crate::Algorithm;
     use super::*;
 
     #[test]
@@ -417,5 +611,42 @@ mod tests {
         let row_basis_status = lp.row_basis_status(row);
         assert_eq!(col_basis_status, BasisStatus::AtLower);
         assert_eq!(row_basis_status, BasisStatus::AtUpper);
+    }
+
+
+    #[test]
+    fn set_obj_sense() {
+        let mut lp = Model::new();
+        lp.set_obj_sense(ObjSense::Minimize);
+        lp.add_col([], 1.0, 1.0, 5.0);
+        let lp = lp.optimize();
+        let result = lp.status();
+        assert_eq!(result, Status::Optimal);
+        assert!((lp.obj_val() - 1.0).abs() < 1e-6);
+    }
+
+    fn small_model() -> Model {
+        let mut lp = Model::new();
+        lp.add_col([], 1.0, 0.0, 5.0);
+        lp.add_col([], 1.0, 0.0, 10.0);
+        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        lp
+    }
+
+    #[test]
+    fn set_algorithm() {
+        let mut lp = small_model();
+        lp.set_algorithm(Algorithm::Primal);
+        let lp = lp.optimize();
+        let result = lp.status();
+        assert_eq!(result, Status::Optimal);
+        assert!((lp.obj_val() - 5.0).abs() < 1e-6);
+
+        let mut lp = small_model();
+        lp.set_algorithm(Algorithm::Dual);
+        let lp = lp.optimize();
+        let result = lp.status();
+        assert_eq!(result, Status::Optimal);
+        assert!((lp.obj_val() - 5.0).abs() < 1e-6);
     }
 }

@@ -54,19 +54,218 @@ pub enum BoolParam {
     SimplifierDominatedCols = 24,
 }
 
+
+pub(crate) const OBJSENSE_PARAM_ID: i32 = 0;
+pub(crate) const REPR_PARAM_ID: i32 = 1;
+pub(crate) const ALGORITHM_PARAM_ID: i32 = 2;
+pub(crate) const FACTOR_UPDATE_TYPE_PARAM_ID: i32 = 3;
+pub(crate) const VERBOSITY_PARAM_ID: i32 = 9;
+pub(crate) const SIMPLIFIER_PARAM_ID: i32 = 10;
+pub(crate) const SCALAR_PARAM_ID: i32 = 11;
+pub(crate) const STARTER_PARAM_ID: i32 = 12;
+pub(crate) const PRICER_PARAM_ID: i32 = 13;
+pub(crate) const RATIO_TESTER_PARAM_ID: i32 = 14;
+pub(crate) const SYNC_MODE_PARAM_ID: i32 = 15;
+pub(crate) const READ_MODE_PARAM_ID: i32 = 16;
+pub(crate) const SOLVE_MODE_PARAM_ID: i32 = 17;
+pub(crate) const CHECK_MODE_PARAM_ID: i32 = 18;
+pub(crate) const TIMER_PARAM_ID: i32 = 19;
+pub(crate) const HYPER_PRICING_PARAM_ID: i32 = 20;
+pub(crate) const SOLUTION_POLISHING_PARAM_ID: i32 = 23;
+pub(crate) const DECOMP_VERBOSITY_PARAM_ID: i32 = 27;
+pub(crate) const STAT_TIMER_PARAM_ID: i32 = 29;
+
+/// Enum representing the objective sense for optimization.
+pub enum ObjSense {
+    /// Minimize the objective function.
+    Minimize = -1,
+    /// Maximize the objective function.
+    Maximize = 1,
+}
+
+/// Enum representing the type of representation.
+pub enum Representation {
+    /// Automatically determine the representation type.
+    Auto = 0,
+    /// Column-based representation.
+    Column = 1,
+    /// Row-based representation.
+    Row = 2,
+}
+
+/// Enum representing the type of algorithm used.
+pub enum Algorithm {
+    /// Primal algorithm.
+    Primal = 0,
+    /// Dual algorithm.
+    Dual = 1,
+}
+
+/// Enum representing the factor update type.
+pub enum FactorUpdateType {
+    /// ETA update type.
+    Eta = 0,
+    /// FT update type.
+    Ft = 1,
+}
+
+/// Enum representing verbosity levels.
+pub enum Verbosity {
+    /// Only show errors.
+    Error = 0,
+    /// Show warnings and errors.
+    Warning = 1,
+    /// Show debug information.
+    Debug = 2,
+    /// Show normal information.
+    Normal = 3,
+    /// Show high-level information.
+    High = 4,
+    /// Show full details.
+    Full = 5,
+}
+
+/// Enum representing the simplifier type.
+pub enum Simplifier {
+    /// Simplification is turned off.
+    Off = 0,
+    /// Use internal simplifier.
+    Internal = 3,
+    /// Use Papilo simplifier.
+    Papilo = 2,
+    /// Automatically choose the simplifier.
+    Auto = 1,
+}
+
+/// Enum representing the scalar type.
+pub enum Scalar {
+    /// Scalar operation is turned off.
+    Off = 0,
+    /// Use uniequi scalar.
+    Uniequi = 1,
+    /// Use biequi scalar.
+    Biequi = 2,
+    /// GE01 scalar.
+    Ge01 = 3,
+    /// GE08 scalar.
+    Ge08 = 4,
+    /// Least squares scalar.
+    Leastsq = 5,
+    /// Geometric equivalence scalar.
+    Geoequi = 6,
+}
+
+/// Enum representing the starter type.
+pub enum Starter {
+    /// Starter is turned off.
+    Off = 0,
+    /// Use weight-based starter.
+    Weight = 1,
+    /// Use sum-based starter.
+    Sum = 2,
+    /// Use vector-based starter.
+    Vector = 3,
+}
+
+/// Enum representing the pricer type.
+pub enum Pricer {
+    /// Automatically choose the pricer.
+    Auto = 0,
+    /// Use Dantzig pricer.
+    Dantzig = 1,
+    /// Use parallel multiple pricer.
+    Parmult = 2,
+    /// Use Devex pricer.
+    Devex = 3,
+    /// Use quick steepest edge pricer.
+    Quicksteep = 4,
+    /// Use steepest edge pricer.
+    Steep = 5,
+}
+
+/// Enum representing the ratio tester type.
+pub enum RatioTester {
+    /// Use textbook ratio test.
+    Textbook = 0,
+    /// Use Harris ratio test.
+    Harris = 1,
+    /// Use fast ratio test.
+    Fast = 2,
+    /// Use bound flipping ratio test.
+    Boundflipping = 3,
+}
+
+/// Enum representing the synchronization mode.
+pub enum SyncMode {
+    /// Only sync real values.
+    Onlyreal = 0,
+    /// Automatically sync.
+    Auto = 1,
+    /// Manually sync.
+    Manual = 2,
+}
+
+/// Enum representing the read mode.
+pub enum ReadMode {
+    /// Read real values.
+    Real = 0,
+    /// Read rational values.
+    Rational = 1,
+}
+
+/// Enum representing the solve mode.
+pub enum SolveMode {
+    /// Solve with real values.
+    Real = 0,
+    /// Automatically determine the solve mode.
+    Auto = 1,
+    /// Solve with rational values.
+    Rational = 2,
+}
+
+/// Enum representing the check mode.
+pub enum CheckMode {
+    /// Check real values.
+    Real = 0,
+    /// Automatically determine the check mode.
+    Auto = 1,
+    /// Check rational values.
+    Rational = 2,
+}
+
+/// Enum representing the timer type.
+pub enum Timer {
+    /// Timer is turned off.
+    Off = 0,
+    /// Use CPU timer.
+    Cpu = 1,
+    /// Use wall clock timer.
+    Wallclock = 2,
+}
+
+/// Enum representing the hyperpricing mode.
+pub enum HyperPricing {
+    /// Hyperpricing is turned off.
+    Off = 0,
+    /// Automatically choose hyperpricing.
+    Auto = 1,
+    /// Hyperpricing is turned on.
+    On = 2,
+}
+
+/// Enum representing the solution polishing mode.
+pub enum SolutionPolishing {
+    /// Solution polishing is turned off.
+    Off = 0,
+    /// Polishing for integrality.
+    Integrality = 1,
+    /// Polishing for fractionality.
+    Fractionality = 2,
+}
+
 /// Represents the integer parameters for some LP solver.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum IntParam {
-    /// Objective sense
-    /// TODO: This should be an enum
-    ObjSense = 0,
-    /// Type of computational form i.e., column or row representation
-    Representation = 1,
-    /// Type of algorithm i.e., primal or dual
-    /// TODO: This should be an enum
-    Algorithm = 2,
-    /// Type of LU update
-    FactorUpdateType = 3,
     /// Maximum number of updates without fresh factorization
     FactorUpdateMax = 4,
     /// Iteration limit (-1 if unlimited)
@@ -77,63 +276,18 @@ pub enum IntParam {
     StallRefLimit = 7,
     /// Display frequency
     DisplayFreq = 8,
-    /// Verbosity level
-    /// TODO: This should be an enum
-    Verbosity = 9,
-    /// Type of simplifier
-    /// TODO: This should be an enum
-    Simplifier = 10,
-    /// Type of scaler
-    /// TODO: This should be an enum
-    Scaler = 11,
-    /// Type of starter used to create crash basis
-    /// TODO: This should be an enum
-    Starter = 12,
-    /// Type of pricer
-    /// TODO: This should be an enum
-    Pricer = 13,
-    /// Type of ratio test
-    /// TODO: This should be an enum
-    RatioTester = 14,
-    /// Mode for synchronizing real and rational LP
-    /// TODO: This should be an enum
-    SyncMode = 15,
-    /// Mode for reading LP files
-    /// TODO: This should be an enum
-    ReadMode = 16,
-    /// Mode for iterative refinement strategy
-    /// TODO: This should be an enum
-    SolveMode = 17,
-    /// Mode for a posteriori feasibility checks
-    /// TODO: This should be an enum
-    CheckMode = 18,
-    /// Type of timer
-    /// TODO: This should be an enum
-    Timer = 19,
-    /// Mode for hyper sparse pricing
-    /// TODO: This should be an enum
-    HyperPricing = 20,
     /// Minimum number of stalling refinements since last pivot to trigger rational factorization
     RatFacMinStalls = 21,
     /// Maximum number of conjugate gradient iterations in least square scaling
     LeastSqMaxRounds = 22,
-    /// Mode for solution polishing
-    /// TODO: This should be an enum
-    SolutionPolishing = 23,
     /// Number of iterations before the decomposition simplex initialization is terminated
     DecompIterLimit = 24,
     /// Maximum number of rows added in each iteration of the decomposition based simplex
     DecompMaxAddedRows = 25,
     /// Iteration frequency at which the decomposition solve output is displayed
     DecompDisplayFreq = 26,
-    /// Verbosity of the decomposition based simplex
-    /// TODO: This should be an enum
-    DecompVerbosity = 27,
     /// Print condition number during the solve
     PrintBasisMetric = 28,
-    /// Type of timer for statistics
-    /// TODO: This should be an enum
-    StatTimer = 29,
 }
 
 /// Represents the real number parameters for some LP solver.
@@ -193,20 +347,42 @@ pub enum RealParam {
     SimplifierModifyRowFac = 25,
 }
 
-impl From<BoolParam> for i32 {
-    fn from(param: BoolParam) -> i32 {
-        param as i32
-    }
+
+
+macro_rules! impl_from_int_param {
+    ($($param:ident),*) => {
+        $(
+            impl From<$param> for i32 {
+                fn from(param: $param) -> i32 {
+                    param as i32
+                }
+            }
+        )*
+    };
 }
 
-impl From<IntParam> for i32 {
-    fn from(param: IntParam) -> i32 {
-        param as i32
-    }
-}
+impl_from_int_param!(
+    BoolParam,
+    IntParam,
+    RealParam,
+    ObjSense,
+    Representation,
+    Algorithm,
+    FactorUpdateType,
+    Verbosity,
+    Simplifier,
+    Scalar,
+    Starter,
+    Pricer,
+    RatioTester,
+    SyncMode,
+    SolveMode,
+    CheckMode,
+    Timer,
+    HyperPricing,
+    SolutionPolishing,
+    ReadMode
+);
 
-impl From<RealParam> for i32 {
-    fn from(param: RealParam) -> i32 {
-        param as i32
-    }
-}
+
+
