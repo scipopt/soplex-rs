@@ -47,6 +47,8 @@ pub mod ffi {
 mod model;
 mod soplex_ptr;
 mod param;
+mod basis_status;
+
 pub use param::*;
 
 pub use model::*;

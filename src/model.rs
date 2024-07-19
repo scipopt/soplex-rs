@@ -1,4 +1,5 @@
 use crate::{BoolParam, ffi, IntParam, RealParam};
+use crate::basis_status::BasisStatus;
 use crate::soplex_ptr::SoplexPtr;
 use crate::status::Status;
 
@@ -243,6 +244,28 @@ impl SolvedModel {
     pub fn num_iterations(&self) -> i32 {
         unsafe { ffi::SoPlex_getNumIterations(*self.inner) }
     }
+
+    /// Returns the basis status of a column.
+    ///
+    /// # Arguments
+    /// * `col_id` - The `ColId` of the column.
+    ///
+    /// # Returns
+    /// The `BasisStatus` of the column.
+    pub fn col_basis_status(&self, col_id: ColId) -> BasisStatus {
+        unsafe { ffi::SoPlex_basisColStatus(*self.inner, col_id.0 as i32) }.into()
+    }
+
+    /// Returns the basis status of a row.
+    ///
+    /// # Arguments
+    /// * `row_id` - The `RowId` of the row.
+    ///
+    /// # Returns
+    /// The `BasisStatus` of the row.
+    pub fn row_basis_status(&self, row_id: RowId) -> BasisStatus {
+        unsafe { ffi::SoPlex_basisRowStatus(*self.inner, row_id.0 as i32) }.into()
+    }
 }
 
 impl From<SolvedModel> for Model {
@@ -380,5 +403,19 @@ mod tests {
         let lp = lp.optimize();
         let result = lp.status();
         assert_eq!(result, Status::Infeasible);
+    }
+
+
+    #[test]
+    fn basis_status() {
+        let mut lp = Model::new();
+        let col1 = lp.add_col([], 1.0, 0.0, 5.0);
+        let _col2 = lp.add_col([], 1.0, 0.0, 10.0);
+        let row = lp.add_row([1.0, 1.0], 1.0, 5.0);
+        let lp = lp.optimize();
+        let col_basis_status = lp.col_basis_status(col1);
+        let row_basis_status = lp.row_basis_status(row);
+        assert_eq!(col_basis_status, BasisStatus::AtLower);
+        assert_eq!(row_basis_status, BasisStatus::AtUpper);
     }
 }
