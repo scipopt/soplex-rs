@@ -14,6 +14,12 @@ pub struct RowId(usize);
 /// Id of a column in the model.
 pub struct ColId(usize);
 
+impl Default for Model {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Model {
     /// Creates a new linear programming model.
     pub fn new() -> Self {
