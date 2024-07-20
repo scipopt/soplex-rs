@@ -15,7 +15,6 @@ pub enum ColBasisStatus {
     Unknown = 5,
 }
 
-
 /// Row basis status
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RowBasisStatus {

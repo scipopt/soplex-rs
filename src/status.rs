@@ -1,6 +1,5 @@
 use std::convert::From;
 
-
 /// Status of the solver
 #[derive(Debug, PartialEq, Clone)]
 pub enum Status {

@@ -54,7 +54,6 @@ pub enum BoolParam {
     SimplifierDominatedCols = 24,
 }
 
-
 pub(crate) const OBJSENSE_PARAM_ID: i32 = 0;
 pub(crate) const REPR_PARAM_ID: i32 = 1;
 pub(crate) const ALGORITHM_PARAM_ID: i32 = 2;
@@ -347,8 +346,6 @@ pub enum RealParam {
     SimplifierModifyRowFac = 25,
 }
 
-
-
 macro_rules! impl_from_int_param {
     ($($param:ident),*) => {
         $(
@@ -383,6 +380,3 @@ impl_from_int_param!(
     SolutionPolishing,
     ReadMode
 );
-
-
-

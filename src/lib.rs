@@ -44,10 +44,10 @@ pub mod ffi {
     pub use soplex_sys::*;
 }
 
-mod model;
-mod soplex_ptr;
-mod param;
 mod basis_status;
+mod model;
+mod param;
+mod soplex_ptr;
 pub use basis_status::*;
 
 pub use param::*;

@@ -1,6 +1,6 @@
+use crate::ffi;
 use std::ffi::c_void;
 use std::ops::Deref;
-use crate::ffi;
 
 pub(crate) struct SoplexPtr {
     ptr: *mut c_void,
@@ -13,7 +13,6 @@ impl SoplexPtr {
         SoplexPtr { ptr }
     }
 }
-
 
 impl Default for SoplexPtr {
     fn default() -> Self {

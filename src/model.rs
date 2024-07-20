@@ -1,7 +1,7 @@
-use crate::{BoolParam, ColBasisStatus, ffi, IntParam, ObjSense, RealParam, RowBasisStatus};
 use crate::param::{ALGORITHM_PARAM_ID, OBJSENSE_PARAM_ID, REPR_PARAM_ID};
 use crate::soplex_ptr::SoplexPtr;
 use crate::status::Status;
+use crate::{ffi, BoolParam, ColBasisStatus, IntParam, ObjSense, RealParam, RowBasisStatus};
 
 /// A linear programming model.
 pub struct Model {
@@ -17,7 +17,9 @@ pub struct ColId(usize);
 impl Model {
     /// Creates a new linear programming model.
     pub fn new() -> Self {
-        Self { inner: SoplexPtr::new() }
+        Self {
+            inner: SoplexPtr::new(),
+        }
     }
 
     /// Adds a column to the model.
@@ -32,16 +34,26 @@ impl Model {
     /// # Returns
     ///
     /// The `ColId` of the added column.
-    pub fn add_col<const N: usize>(&mut self, mut colentries: [f64; N], objval: f64, lb: f64, ub: f64) -> ColId {
+    pub fn add_col<const N: usize>(
+        &mut self,
+        mut colentries: [f64; N],
+        objval: f64,
+        lb: f64,
+        ub: f64,
+    ) -> ColId {
         let nnonzeros = colentries.iter().filter(|&&x| x != 0.0).count();
         let colsize = colentries.len();
 
         unsafe {
-            ffi::SoPlex_addColReal(*self.inner,
-                                   colentries.as_mut_ptr(),
-                                   colsize as i32,
-                                   nnonzeros as i32,
-                                   objval, lb, ub);
+            ffi::SoPlex_addColReal(
+                *self.inner,
+                colentries.as_mut_ptr(),
+                colsize as i32,
+                nnonzeros as i32,
+                objval,
+                lb,
+                ub,
+            );
         }
 
         ColId(self.num_cols() - 1)
@@ -58,16 +70,24 @@ impl Model {
     /// # Returns
     ///
     /// The `RowId` of the added row.
-    pub fn add_row<const N: usize>(&mut self, mut rowentries: [f64; N], lhs: f64, rhs: f64) -> RowId {
+    pub fn add_row<const N: usize>(
+        &mut self,
+        mut rowentries: [f64; N],
+        lhs: f64,
+        rhs: f64,
+    ) -> RowId {
         let nnonzeros = rowentries.iter().filter(|&&x| x != 0.0).count();
         let rowsize = rowentries.len();
 
         unsafe {
-            ffi::SoPlex_addRowReal(*self.inner,
-                                   rowentries.as_mut_ptr(),
-                                   rowsize as i32,
-                                   nnonzeros as i32,
-                                   lhs, rhs);
+            ffi::SoPlex_addRowReal(
+                *self.inner,
+                rowentries.as_mut_ptr(),
+                rowsize as i32,
+                nnonzeros as i32,
+                lhs,
+                rhs,
+            );
         }
 
         RowId(self.num_rows() - 1)
@@ -93,7 +113,6 @@ impl Model {
     pub fn remove_col(&mut self, col_id: ColId) {
         unsafe { ffi::SoPlex_removeColReal(*self.inner, col_id.0 as i32) };
     }
-
 
     /// Remove a row from the model.
     pub fn remove_row(&mut self, row_id: RowId) {
@@ -154,7 +173,6 @@ impl Model {
             ffi::SoPlex_setRealParam(*self.inner, param.into(), value);
         }
     }
-
 
     /// Change the bounds of a column.
     ///
@@ -220,14 +238,17 @@ impl Model {
         }
     }
 
-
     /// Sets the factor update type.
     ///
     /// # Arguments
     /// * `factor_update_type` - The factor update type.
     pub fn set_factor_update_type(&mut self, factor_update_type: crate::FactorUpdateType) {
         unsafe {
-            ffi::SoPlex_setIntParam(*self.inner, crate::FACTOR_UPDATE_TYPE_PARAM_ID, factor_update_type.into());
+            ffi::SoPlex_setIntParam(
+                *self.inner,
+                crate::FACTOR_UPDATE_TYPE_PARAM_ID,
+                factor_update_type.into(),
+            );
         }
     }
 
@@ -237,7 +258,11 @@ impl Model {
     /// * `simplifier_type` - The simplifier type.
     pub fn set_simplifier_type(&mut self, simplifier_type: crate::Simplifier) {
         unsafe {
-            ffi::SoPlex_setIntParam(*self.inner, crate::SIMPLIFIER_PARAM_ID, simplifier_type.into());
+            ffi::SoPlex_setIntParam(
+                *self.inner,
+                crate::SIMPLIFIER_PARAM_ID,
+                simplifier_type.into(),
+            );
         }
     }
 
@@ -267,7 +292,11 @@ impl Model {
     /// * `ratio_tester_type` - The ratio tester type.
     pub fn set_ratio_tester_type(&mut self, ratio_tester_type: crate::RatioTester) {
         unsafe {
-            ffi::SoPlex_setIntParam(*self.inner, crate::RATIO_TESTER_PARAM_ID, ratio_tester_type.into());
+            ffi::SoPlex_setIntParam(
+                *self.inner,
+                crate::RATIO_TESTER_PARAM_ID,
+                ratio_tester_type.into(),
+            );
         }
     }
 
@@ -280,7 +309,6 @@ impl Model {
             ffi::SoPlex_setIntParam(*self.inner, crate::SYNC_MODE_PARAM_ID, sync_mode.into());
         }
     }
-
 
     /// Sets the read mode.
     ///
@@ -328,7 +356,11 @@ impl Model {
     /// * `hyper_pricing` - The hyper pricing parameter.
     pub fn set_hyper_pricing(&mut self, hyper_pricing: crate::HyperPricing) {
         unsafe {
-            ffi::SoPlex_setIntParam(*self.inner, crate::HYPER_PRICING_PARAM_ID, hyper_pricing.into());
+            ffi::SoPlex_setIntParam(
+                *self.inner,
+                crate::HYPER_PRICING_PARAM_ID,
+                hyper_pricing.into(),
+            );
         }
     }
 
@@ -338,7 +370,11 @@ impl Model {
     /// * `solution_polishing` - The solution polishing type.
     pub fn set_solution_polishing(&mut self, solution_polishing: crate::SolutionPolishing) {
         unsafe {
-            ffi::SoPlex_setIntParam(*self.inner, crate::SOLUTION_POLISHING_PARAM_ID, solution_polishing.into());
+            ffi::SoPlex_setIntParam(
+                *self.inner,
+                crate::SOLUTION_POLISHING_PARAM_ID,
+                solution_polishing.into(),
+            );
         }
     }
 
@@ -348,7 +384,11 @@ impl Model {
     /// * `decomp_verbosity` - The decomposition verbosity.
     pub fn set_decomp_verbosity(&mut self, decomp_verbosity: crate::Verbosity) {
         unsafe {
-            ffi::SoPlex_setIntParam(*self.inner, crate::DECOMP_VERBOSITY_PARAM_ID, decomp_verbosity.into());
+            ffi::SoPlex_setIntParam(
+                *self.inner,
+                crate::DECOMP_VERBOSITY_PARAM_ID,
+                decomp_verbosity.into(),
+            );
         }
     }
 
@@ -398,7 +438,6 @@ impl SolvedModel {
     pub fn obj_val(&self) -> f64 {
         unsafe { ffi::SoPlex_objValueReal(*self.inner) }
     }
-
 
     /// Returns the primal solution of the model.
     pub fn primal_solution(&self) -> Vec<f64> {
@@ -462,15 +501,16 @@ impl SolvedModel {
 
 impl From<SolvedModel> for Model {
     fn from(solved_model: SolvedModel) -> Self {
-        Self { inner: solved_model.inner }
+        Self {
+            inner: solved_model.inner,
+        }
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use crate::Algorithm;
     use super::*;
+    use crate::Algorithm;
 
     #[test]
     fn simple_problem() {
@@ -522,7 +562,6 @@ mod tests {
         assert!((lp.obj_val() - -27.66666666).abs() < 1e-6);
     }
 
-
     #[test]
     fn num_iterations() {
         let mut lp = Model::new();
@@ -557,7 +596,6 @@ mod tests {
         let lp = lp.optimize();
         assert_eq!(lp.status(), Status::AbortTime);
     }
-
 
     #[test]
     fn set_bool_param() {
@@ -598,7 +636,6 @@ mod tests {
         assert_eq!(result, Status::Infeasible);
     }
 
-
     #[test]
     fn basis_status() {
         let mut lp = Model::new();
@@ -611,7 +648,6 @@ mod tests {
         assert_eq!(col_basis_status, ColBasisStatus::AtLower);
         assert_eq!(row_basis_status, RowBasisStatus::AtUpper);
     }
-
 
     #[test]
     fn set_obj_sense() {
