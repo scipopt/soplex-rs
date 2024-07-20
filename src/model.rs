@@ -417,6 +417,18 @@ impl Model {
             ffi::SoPlex_setIntParam(*self.inner, crate::SCALAR_PARAM_ID, scalar_type.into());
         }
     }
+
+    /// Sets the objective function vector.
+    ///
+    /// # Arguments
+    /// * `objvals` - The objective function vector.
+    pub fn set_obj_vals(&mut self, objvals: &mut [f64]) {
+        let num_cols = self.num_cols();
+        assert_eq!(objvals.len(), num_cols, "objvals must have the same length as the number of columns");
+        unsafe {
+            ffi::SoPlex_changeObjReal(*self.inner, objvals.as_mut_ptr(), objvals.len() as i32);
+        }
+    }
 }
 
 /// A solved linear programming model.
@@ -685,6 +697,18 @@ mod tests {
 
         let mut lp = small_model();
         lp.set_algorithm(Algorithm::Dual);
+        let lp = lp.optimize();
+        let result = lp.status();
+        assert_eq!(result, Status::Optimal);
+        assert!((lp.obj_val() - 5.0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn set_objective() {
+        let mut lp = Model::new();
+        lp.add_col([], 1.0, 1.0, 1.0);
+        lp.add_col([], 1.0, 1.0, 1.0);
+        lp.set_obj_vals(&mut [2.0, 3.0]);
         let lp = lp.optimize();
         let result = lp.status();
         assert_eq!(result, Status::Optimal);
