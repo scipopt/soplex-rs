@@ -433,6 +433,11 @@ impl Model {
             ffi::SoPlex_changeObjReal(*self.inner, objvals.as_mut_ptr(), objvals.len() as i32);
         }
     }
+
+    /// Gets the objective sense of the model.
+    pub fn obj_sense(&self) -> ObjSense {
+        unsafe { ffi::SoPlex_getIntParam(*self.inner, OBJSENSE_PARAM_ID) }.into()
+    }
 }
 
 /// A solved linear programming model.
@@ -731,5 +736,11 @@ mod tests {
     fn read_incorrect_format_file_panic() {
         let mut lp = Model::new();
         lp.read_file("tests/data/simple.txt");
+    }
+
+    #[test]
+    fn obj_sense() {
+        let lp = Model::new();
+        assert_eq!(lp.obj_sense(), ObjSense::Maximize);
     }
 }

@@ -75,6 +75,7 @@ pub(crate) const DECOMP_VERBOSITY_PARAM_ID: i32 = 27;
 pub(crate) const STAT_TIMER_PARAM_ID: i32 = 29;
 
 /// Enum representing the objective sense for optimization.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ObjSense {
     /// Minimize the objective function.
     Minimize = -1,
@@ -83,6 +84,7 @@ pub enum ObjSense {
 }
 
 /// Enum representing the type of representation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Representation {
     /// Automatically determine the representation type.
     Auto = 0,
@@ -93,6 +95,7 @@ pub enum Representation {
 }
 
 /// Enum representing the type of algorithm used.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Algorithm {
     /// Primal algorithm.
     Primal = 0,
@@ -101,6 +104,7 @@ pub enum Algorithm {
 }
 
 /// Enum representing the factor update type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FactorUpdateType {
     /// ETA update type.
     Eta = 0,
@@ -109,6 +113,7 @@ pub enum FactorUpdateType {
 }
 
 /// Enum representing verbosity levels.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Verbosity {
     /// Only show errors.
     Error = 0,
@@ -125,6 +130,7 @@ pub enum Verbosity {
 }
 
 /// Enum representing the simplifier type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Simplifier {
     /// Simplification is turned off.
     Off = 0,
@@ -137,6 +143,7 @@ pub enum Simplifier {
 }
 
 /// Enum representing the scalar type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Scalar {
     /// Scalar operation is turned off.
     Off = 0,
@@ -155,6 +162,7 @@ pub enum Scalar {
 }
 
 /// Enum representing the starter type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Starter {
     /// Starter is turned off.
     Off = 0,
@@ -167,6 +175,7 @@ pub enum Starter {
 }
 
 /// Enum representing the pricer type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Pricer {
     /// Automatically choose the pricer.
     Auto = 0,
@@ -183,6 +192,7 @@ pub enum Pricer {
 }
 
 /// Enum representing the ratio tester type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RatioTester {
     /// Use textbook ratio test.
     Textbook = 0,
@@ -195,6 +205,8 @@ pub enum RatioTester {
 }
 
 /// Enum representing the synchronization mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum SyncMode {
     /// Only sync real values.
     Onlyreal = 0,
@@ -205,6 +217,7 @@ pub enum SyncMode {
 }
 
 /// Enum representing the read mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReadMode {
     /// Read real values.
     Real = 0,
@@ -213,6 +226,8 @@ pub enum ReadMode {
 }
 
 /// Enum representing the solve mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum SolveMode {
     /// Solve with real values.
     Real = 0,
@@ -223,6 +238,8 @@ pub enum SolveMode {
 }
 
 /// Enum representing the check mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum CheckMode {
     /// Check real values.
     Real = 0,
@@ -233,6 +250,8 @@ pub enum CheckMode {
 }
 
 /// Enum representing the timer type.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum Timer {
     /// Timer is turned off.
     Off = 0,
@@ -243,6 +262,8 @@ pub enum Timer {
 }
 
 /// Enum representing the hyperpricing mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum HyperPricing {
     /// Hyperpricing is turned off.
     Off = 0,
@@ -253,6 +274,8 @@ pub enum HyperPricing {
 }
 
 /// Enum representing the solution polishing mode.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+
 pub enum SolutionPolishing {
     /// Solution polishing is turned off.
     Off = 0,
@@ -356,6 +379,16 @@ macro_rules! impl_from_int_param {
             }
         )*
     };
+}
+
+impl From<i32> for ObjSense {
+    fn from(value: i32) -> Self {
+        match value {
+            -1 => ObjSense::Minimize,
+            1 => ObjSense::Maximize,
+            _ => panic!("Invalid value for ObjSense: {}", value),
+        }
+    }
 }
 
 impl_from_int_param!(
