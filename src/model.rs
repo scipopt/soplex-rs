@@ -142,8 +142,12 @@ impl Model {
         }
 
         let c_filename = std::ffi::CString::new(filename).unwrap();
-        unsafe {
-            ffi::SoPlex_readInstanceFile(*self.inner, c_filename.as_ptr());
+        let success = unsafe {
+            ffi::SoPlex_readInstanceFile(*self.inner, c_filename.as_ptr())
+        };
+
+        if success == 0 {
+            panic!("Unexpected failure in reading file: {}", filename);
         }
     }
 
@@ -713,5 +717,19 @@ mod tests {
         let result = lp.status();
         assert_eq!(result, Status::Optimal);
         assert!((lp.obj_val() - 5.0).abs() < 1e-6);
+    }
+
+    #[test]
+    #[should_panic]
+    fn read_non_existent_file_panic() {
+        let mut lp = Model::new();
+        lp.read_file("i_do_not_exist.lp");
+    }
+
+    #[test]
+    #[should_panic]
+    fn read_incorrect_format_file_panic() {
+        let mut lp = Model::new();
+        lp.read_file("tests/data/simple.txt");
     }
 }
