@@ -142,9 +142,7 @@ impl Model {
         }
 
         let c_filename = std::ffi::CString::new(filename).unwrap();
-        let success = unsafe {
-            ffi::SoPlex_readInstanceFile(*self.inner, c_filename.as_ptr())
-        };
+        let success = unsafe { ffi::SoPlex_readInstanceFile(*self.inner, c_filename.as_ptr()) };
 
         if success == 0 {
             panic!("Unexpected failure in reading file: {}", filename);
@@ -428,7 +426,11 @@ impl Model {
     /// * `objvals` - The objective function vector.
     pub fn set_obj_vals(&mut self, objvals: &mut [f64]) {
         let num_cols = self.num_cols();
-        assert_eq!(objvals.len(), num_cols, "objvals must have the same length as the number of columns");
+        assert_eq!(
+            objvals.len(),
+            num_cols,
+            "objvals must have the same length as the number of columns"
+        );
         unsafe {
             ffi::SoPlex_changeObjReal(*self.inner, objvals.as_mut_ptr(), objvals.len() as i32);
         }
