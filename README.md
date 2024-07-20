@@ -1,4 +1,5 @@
 # soplex-rs
+[![tests](https://github.com/mmghannam/soplex-rs/actions/workflows/checks.yml/badge.svg)](https://github.com/mmghannam/soplex-rs/actions/workflows/checks.yml)
 [![][img_crates]][crates] [![][img_doc]][doc] 
 
 [img_crates]: https://img.shields.io/crates/v/soplex-rs.svg
