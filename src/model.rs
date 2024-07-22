@@ -1,7 +1,7 @@
 use crate::param::{ALGORITHM_PARAM_ID, OBJSENSE_PARAM_ID, REPR_PARAM_ID};
 use crate::soplex_ptr::SoplexPtr;
 use crate::status::Status;
-use crate::{ffi, BoolParam, ColBasisStatus, IntParam, ObjSense, RealParam, RowBasisStatus};
+use crate::{ffi, BoolParam, ColBasisStatus, IntParam, ObjSense, RealParam, RowBasisStatus, Verbosity};
 
 /// A linear programming model.
 pub struct Model {
@@ -9,10 +9,22 @@ pub struct Model {
 }
 
 /// Id of a row in the model.
-pub struct RowId(usize);
+pub type RowId = usize;
+
+// impl From<RowId> for usize {
+//     fn from(row_id: RowId) -> usize {
+//         row_id.0
+//     }
+// }
+//
+// impl From<ColId> for usize {
+//     fn from(col_id: ColId) -> usize {
+//         col_id.0
+//     }
+// }
 
 /// Id of a column in the model.
-pub struct ColId(usize);
+pub type ColId = usize;
 
 impl Default for Model {
     fn default() -> Self {
@@ -40,13 +52,7 @@ impl Model {
     /// # Returns
     ///
     /// The `ColId` of the added column.
-    pub fn add_col<const N: usize>(
-        &mut self,
-        mut colentries: [f64; N],
-        objval: f64,
-        lb: f64,
-        ub: f64,
-    ) -> ColId {
+    pub fn add_col(&mut self, mut colentries: Vec<f64>, objval: f64, lb: f64, ub: f64) -> ColId {
         let nnonzeros = colentries.iter().filter(|&&x| x != 0.0).count();
         let colsize = colentries.len();
 
@@ -62,7 +68,7 @@ impl Model {
             );
         }
 
-        ColId(self.num_cols() - 1)
+        self.num_cols() - 1
     }
 
     /// Adds a row to the model.
@@ -76,12 +82,7 @@ impl Model {
     /// # Returns
     ///
     /// The `RowId` of the added row.
-    pub fn add_row<const N: usize>(
-        &mut self,
-        mut rowentries: [f64; N],
-        lhs: f64,
-        rhs: f64,
-    ) -> RowId {
+    pub fn add_row(&mut self, mut rowentries: Vec<f64>, lhs: f64, rhs: f64) -> RowId {
         let nnonzeros = rowentries.iter().filter(|&&x| x != 0.0).count();
         let rowsize = rowentries.len();
 
@@ -96,7 +97,7 @@ impl Model {
             );
         }
 
-        RowId(self.num_rows() - 1)
+        self.num_rows() - 1
     }
 
     /// Optimizes the model and returns the solved model.
@@ -117,12 +118,12 @@ impl Model {
 
     /// Remove a column from the model.
     pub fn remove_col(&mut self, col_id: ColId) {
-        unsafe { ffi::SoPlex_removeColReal(*self.inner, col_id.0 as i32) };
+        unsafe { ffi::SoPlex_removeColReal(*self.inner, col_id as i32) };
     }
 
     /// Remove a row from the model.
     pub fn remove_row(&mut self, row_id: RowId) {
-        unsafe { ffi::SoPlex_removeRowReal(*self.inner, row_id.0 as i32) };
+        unsafe { ffi::SoPlex_removeRowReal(*self.inner, row_id as i32) };
     }
 
     /// Read instance from lp/mps file.
@@ -190,7 +191,7 @@ impl Model {
     /// * `ub` - The new upper bound of the column.
     pub fn change_col_bounds(&mut self, col_id: ColId, lb: f64, ub: f64) {
         unsafe {
-            ffi::SoPlex_changeVarBoundsReal(*self.inner, col_id.0 as i32, lb, ub);
+            ffi::SoPlex_changeVarBoundsReal(*self.inner, col_id as i32, lb, ub);
         }
     }
 
@@ -202,7 +203,7 @@ impl Model {
     /// * `rhs` - The new right-hand side of the row.
     pub fn change_row_range(&mut self, row_id: RowId, lhs: f64, rhs: f64) {
         unsafe {
-            ffi::SoPlex_changeRowRangeReal(*self.inner, row_id.0 as i32, lhs, rhs);
+            ffi::SoPlex_changeRowRangeReal(*self.inner, row_id as i32, lhs, rhs);
         }
     }
 
@@ -240,9 +241,9 @@ impl Model {
     ///
     /// # Arguments
     /// * `verbosity` - The verbosity level.
-    pub fn set_verbosity(&mut self, verbosity: i32) {
+    pub fn set_verbosity(&mut self, verbosity: Verbosity) {
         unsafe {
-            ffi::SoPlex_setIntParam(*self.inner, crate::VERBOSITY_PARAM_ID, verbosity);
+            ffi::SoPlex_setIntParam(*self.inner, crate::VERBOSITY_PARAM_ID, verbosity.into());
         }
     }
 
@@ -513,7 +514,7 @@ impl SolvedModel {
     /// # Returns
     /// The `BasisStatus` of the column.
     pub fn col_basis_status(&self, col_id: ColId) -> ColBasisStatus {
-        unsafe { ffi::SoPlex_basisColStatus(*self.inner, col_id.0 as i32) }.into()
+        unsafe { ffi::SoPlex_basisColStatus(*self.inner, col_id as i32) }.into()
     }
 
     /// Returns the basis status of a row.
@@ -524,7 +525,7 @@ impl SolvedModel {
     /// # Returns
     /// The `BasisStatus` of the row.
     pub fn row_basis_status(&self, row_id: RowId) -> RowBasisStatus {
-        unsafe { ffi::SoPlex_basisRowStatus(*self.inner, row_id.0 as i32) }.into()
+        unsafe { ffi::SoPlex_basisRowStatus(*self.inner, row_id as i32) }.into()
     }
 }
 
@@ -544,9 +545,9 @@ mod tests {
     #[test]
     fn simple_problem() {
         let mut lp = Model::new();
-        let col1 = lp.add_col([], 1.0, 0.0, 5.0);
-        let _col2 = lp.add_col([], 1.0, 0.0, 10.0);
-        let row = lp.add_row([1.0, 1.0], 1.0, 5.0);
+        let col1 = lp.add_col(vec![], 1.0, 0.0, 5.0);
+        let _col2 = lp.add_col(vec![], 1.0, 0.0, 10.0);
+        let row = lp.add_row(vec![1.0, 1.0], 1.0, 5.0);
         assert_eq!(lp.num_cols(), 2);
         assert_eq!(lp.num_rows(), 1);
 
@@ -594,9 +595,9 @@ mod tests {
     #[test]
     fn num_iterations() {
         let mut lp = Model::new();
-        lp.add_col([], 1.0, 0.0, 5.0);
-        lp.add_col([], 1.0, 0.0, 10.0);
-        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 10.0);
+        lp.add_row(vec![1.0, 1.0], 1.0, 5.0);
         let lp = lp.optimize();
         let num_iterations = lp.num_iterations();
         assert_eq!(num_iterations, 1);
@@ -606,9 +607,9 @@ mod tests {
     fn set_int_param() {
         let mut lp = Model::new();
         lp.set_int_param(IntParam::IterLimit, 0);
-        lp.add_col([], 1.0, 0.0, 5.0);
-        lp.add_col([], 1.0, 0.0, 10.0);
-        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 10.0);
+        lp.add_row(vec![1.0, 1.0], 1.0, 5.0);
         let lp = lp.optimize();
         let num_iterations = lp.num_iterations();
         assert_eq!(num_iterations, 0);
@@ -619,9 +620,9 @@ mod tests {
     fn set_real_param() {
         let mut lp = Model::new();
         lp.set_real_param(RealParam::TimeLimit, 0.0);
-        lp.add_col([], 1.0, 0.0, 5.0);
-        lp.add_col([], 1.0, 0.0, 10.0);
-        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 10.0);
+        lp.add_row(vec![1.0, 1.0], 1.0, 5.0);
         let lp = lp.optimize();
         assert_eq!(lp.status(), Status::AbortTime);
     }
@@ -633,9 +634,9 @@ mod tests {
         // from the output, it seems that the parameter is being set
         let mut lp = Model::new();
         lp.set_bool_param(BoolParam::EqTrans, true);
-        lp.add_col([], 1.0, 0.0, 5.0);
-        lp.add_col([], 1.0, 0.0, 10.0);
-        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 10.0);
+        lp.add_row(vec![1.0, 1.0], 1.0, 5.0);
         let lp = lp.optimize();
         assert_eq!(lp.status(), Status::Optimal);
     }
@@ -643,7 +644,7 @@ mod tests {
     #[test]
     fn change_col_bounds() {
         let mut lp = Model::new();
-        let col1 = lp.add_col([], 1.0, 0.0, 5.0);
+        let col1 = lp.add_col(vec![], 1.0, 0.0, 5.0);
         lp.change_col_bounds(col1, 0.0, 10.0);
 
         let lp = lp.optimize();
@@ -655,9 +656,9 @@ mod tests {
     #[test]
     fn change_row_range() {
         let mut lp = Model::new();
-        lp.add_col([], 1.0, 1.0, 5.0);
-        lp.add_col([], 1.0, 1.0, 10.0);
-        let row = lp.add_row([1.0, 1.0], 1.0, 5.0);
+        lp.add_col(vec![], 1.0, 1.0, 5.0);
+        lp.add_col(vec![], 1.0, 1.0, 10.0);
+        let row = lp.add_row(vec![1.0, 1.0], 1.0, 5.0);
         lp.change_row_range(row, 0.0, 0.0);
 
         let lp = lp.optimize();
@@ -668,9 +669,9 @@ mod tests {
     #[test]
     fn basis_status() {
         let mut lp = Model::new();
-        let col1 = lp.add_col([], 1.0, 0.0, 5.0);
-        let _col2 = lp.add_col([], 1.0, 0.0, 10.0);
-        let row = lp.add_row([1.0, 1.0], 1.0, 5.0);
+        let col1 = lp.add_col(vec![], 1.0, 0.0, 5.0);
+        let _col2 = lp.add_col(vec![], 1.0, 0.0, 10.0);
+        let row = lp.add_row(vec![1.0, 1.0], 1.0, 5.0);
         let lp = lp.optimize();
         let col_basis_status = lp.col_basis_status(col1);
         let row_basis_status = lp.row_basis_status(row);
@@ -682,7 +683,7 @@ mod tests {
     fn set_obj_sense() {
         let mut lp = Model::new();
         lp.set_obj_sense(ObjSense::Minimize);
-        lp.add_col([], 1.0, 1.0, 5.0);
+        lp.add_col(vec![], 1.0, 1.0, 5.0);
         let lp = lp.optimize();
         let result = lp.status();
         assert_eq!(result, Status::Optimal);
@@ -691,9 +692,9 @@ mod tests {
 
     fn small_model() -> Model {
         let mut lp = Model::new();
-        lp.add_col([], 1.0, 0.0, 5.0);
-        lp.add_col([], 1.0, 0.0, 10.0);
-        lp.add_row([1.0, 1.0], 1.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 5.0);
+        lp.add_col(vec![], 1.0, 0.0, 10.0);
+        lp.add_row(vec![1.0, 1.0], 1.0, 5.0);
         lp
     }
 
@@ -717,8 +718,8 @@ mod tests {
     #[test]
     fn set_objective() {
         let mut lp = Model::new();
-        lp.add_col([], 1.0, 1.0, 1.0);
-        lp.add_col([], 1.0, 1.0, 1.0);
+        lp.add_col(vec![], 1.0, 1.0, 1.0);
+        lp.add_col(vec![], 1.0, 1.0, 1.0);
         lp.set_obj_vals(&mut [2.0, 3.0]);
         let lp = lp.optimize();
         let result = lp.status();

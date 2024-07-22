@@ -2,9 +2,9 @@ use soplex_rs::{Model, Status};
 
 fn main() {
     let mut lp = Model::new();
-    let col1 = lp.add_col([], 1.0, 0.0, 5.0);
-    let _col2 = lp.add_col([], 1.0, 0.0, 10.0);
-    let row = lp.add_row([1.0, 1.0], 1.0, 5.0);
+    let col1 = lp.add_col(vec![], 1.0, 0.0, 5.0);
+    let _col2 = lp.add_col(vec![], 1.0, 0.0, 10.0);
+    let row = lp.add_row(vec![1.0, 1.0], 1.0, 5.0);
     assert_eq!(lp.num_cols(), 2);
     assert_eq!(lp.num_rows(), 1);
 
