@@ -1,7 +1,9 @@
 use crate::param::{ALGORITHM_PARAM_ID, OBJSENSE_PARAM_ID, REPR_PARAM_ID};
 use crate::soplex_ptr::SoplexPtr;
 use crate::status::Status;
-use crate::{ffi, BoolParam, ColBasisStatus, IntParam, ObjSense, RealParam, RowBasisStatus, Verbosity};
+use crate::{
+    ffi, BoolParam, ColBasisStatus, IntParam, ObjSense, RealParam, RowBasisStatus, Verbosity,
+};
 
 /// A linear programming model.
 pub struct Model {
