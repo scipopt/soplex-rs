@@ -23,9 +23,9 @@
 //! assert!((lp.obj_val() - 5.0).abs() < 1e-6);
 //!
 //!
-//! // After solving you need to return the `SolvedModel` object to a `Model` object as in
-//! // the example below.
-//! let mut lp = Model::from(lp); // Convert the solved model back to a mutable one
+//! // After solving you need to return the `SolvedModel` object to a `Model` object.
+//! // Then you can add or remove columns and rows and optimize again.
+//! let mut lp = Model::from(lp);
 //! lp.remove_row(row);
 //! assert_eq!(lp.num_rows(), 0);
 //! let lp = lp.optimize();
