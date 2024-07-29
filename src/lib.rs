@@ -2,9 +2,9 @@
 //!
 //! # Example
 //! ```rust
-//! // You can create an LP model using the `add_col` and the `add_row` methods on the `Model`.
 //! use soplex_rs::*;
 //!
+//! // You can create an LP model using the `add_col` and the `add_row` methods on the `Model`.
 //! let mut lp = Model::new();
 //! // Add column with obj. function value of 1.0 and range from 0 to 5
 //! let col1= lp.add_col(vec![], 1.0, 0.0, 5.0);
@@ -25,7 +25,6 @@
 //!
 //! // After solving you need to return the `SolvedModel` object to a `Model` object as in
 //! // the example below.
-//!
 //! let mut lp = Model::from(lp); // Convert the solved model back to a mutable one
 //! lp.remove_row(row);
 //! assert_eq!(lp.num_rows(), 0);
