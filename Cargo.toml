@@ -7,4 +7,4 @@ license = "Apache-2.0"
 repository = "https://github.com/mmghannam/soplex-rs"
 
 [dependencies]
-soplex-sys = "0.1.3"
+soplex-sys = "0.1.4"
