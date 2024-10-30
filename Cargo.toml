@@ -1,10 +1,10 @@
 [package]
 name = "soplex-rs"
-version = "0.3.3"
+version = "0.3.4"
 edition = "2021"
 description = "Safe Rust bindings for the SoPlex LP solver"
 license = "Apache-2.0"
-repository = "https://github.com/mmghannam/soplex-rs"
+repository = "https://github.com/scipopt/soplex-rs"
 
 [dependencies]
 soplex-sys = "0.1.6"
